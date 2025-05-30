@@ -1,0 +1,108 @@
+<Window x:Class="DormitoryManagement.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DormitoryManagement.Views"
+        xmlns:vm="clr-namespace:DormitoryManagement.ViewModels"
+        mc:Ignorable="d"
+        Title="Учёт общежития" Height="600" Width="1000">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Меню -->
+        <Border Grid.Column="0" Background="#FF2D2D30" Width="{Binding IsMenuExpanded, Converter={StaticResource BoolToWidthConverter}, ConverterParameter=200}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Button Grid.Row="0" Content="{Binding IsMenuExpanded, Converter={StaticResource BoolToMenuIconConverter}}" 
+                        Command="{Binding ToggleMenuCommand}" Style="{StaticResource MenuButtonStyle}"/>
+
+                <StackPanel Grid.Row="1" Margin="5">
+                    <TextBlock Text="Общежития" Style="{StaticResource MenuHeaderStyle}"/>
+                    <ListView ItemsSource="{Binding Dormitories}" SelectedItem="{Binding SelectedDormitory}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" Style="{StaticResource MenuItemStyle}"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <Button Content="+" Command="{Binding AddDormitoryCommand}" Style="{StaticResource SmallButtonStyle}"/>
+                        <Button Content="-" Command="{Binding DeleteDormitoryCommand}" Style="{StaticResource SmallButtonStyle}"/>
+                    </StackPanel>
+
+                    <TextBlock Text="Комнаты" Style="{StaticResource MenuHeaderStyle}" Margin="0,10,0,0"/>
+                    <ListView ItemsSource="{Binding Rooms}" SelectedItem="{Binding SelectedRoom}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Number}" Style="{StaticResource MenuItemStyle}"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <Button Content="+" Command="{Binding AddRoomCommand}" Style="{StaticResource SmallButtonStyle}"/>
+                        <Button Content="-" Command="{Binding DeleteRoomCommand}" Style="{StaticResource SmallButtonStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Основное содержимое -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="{Binding SelectedDormitory.Name, StringFormat='Общежитие: {0}'}" 
+                       Style="{StaticResource HeaderStyle}" Margin="10"/>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Информация о комнате -->
+                <StackPanel Grid.Column="0" Margin="10">
+                    <TextBlock Text="{Binding SelectedRoom.Number, StringFormat='Комната: {0}'}" Style="{StaticResource SubHeaderStyle}"/>
+                    <TextBlock Text="{Binding SelectedRoom.Capacity, StringFormat='Вместимость: {0}'}"/>
+                    <TextBlock Text="{Binding SelectedRoom.CurrentOccupancy, StringFormat='Заселено: {0}'}"/>
+                    <Button Content="Перевести всех на след. курс" Command="{Binding MoveAllToNextCourseCommand}" Margin="0,10"/>
+                </StackPanel>
+
+                <!-- Список студентов -->
+                <ListView Grid.Column="1" ItemsSource="{Binding Students}" Margin="10">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="ФИО" DisplayMemberBinding="{Binding FullName}"/>
+                            <GridViewColumn Header="Группа" DisplayMemberBinding="{Binding GroupName}"/>
+                            <GridViewColumn Header="Курс" DisplayMemberBinding="{Binding Course}"/>
+                        </GridView>
+                    </ListView.View>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Заселить" Command="{Binding AccommodateStudentCommand}" 
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent.PlacementTarget.SelectedItem}"/>
+                            <MenuItem Header="Выселить" Command="{Binding EvictStudentCommand}" 
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent.PlacementTarget.SelectedItem}"/>
+                            <MenuItem Header="Перевести" Command="{Binding TransferStudentCommand}" 
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent.PlacementTarget.SelectedItem}"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                </ListView>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
