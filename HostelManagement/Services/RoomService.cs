@@ -56,7 +56,6 @@ public class RoomService : IRoomService
         
         if (newRoom == null || newRoom.CurrentOccupancy >= newRoom.Capacity) return;
 
-        // Обновляем историю
         var currentAccommodation = await _context.AccommodationHistory
             .FirstOrDefaultAsync(a => a.StudentId == studentId && a.CheckOutDate == null);
         
