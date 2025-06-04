@@ -1,10 +1,14 @@
-using DormitoryManagement.Services;
-using DormitoryManagement.Models;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DormitoryManagement.Data;
+using DormitoryManagement.Models;
+using DormitoryManagement.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Windows.Input;
 
 
 namespace DormitoryManagement.ViewModels;
@@ -80,6 +84,42 @@ public partial class MainViewModel : ObservableObject
     private void ToggleMenu() => IsMenuExpanded = !IsMenuExpanded;
 
     [RelayCommand]
+    private async Task TestDbConnection()
+    {
+        try
+        {
+            using var scope = App.ServiceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            // 1. Проверка подключения
+            bool canConnect = await db.Database.CanConnectAsync();
+            Debug.WriteLine($"Can connect: {canConnect}");
+
+            // 2. Прямое добавление тестовых данных
+            var testDorm = new Dormitory
+            {
+                Name = "Тест " + DateTime.Now.ToString("HH:mm:ss"),
+                Address = "Тестовый адрес"
+            };
+
+            db.Dormitories.Add(testDorm);
+            int affected = await db.SaveChangesAsync();
+            Debug.WriteLine($"Affected rows: {affected}");
+
+            // 3. Проверка данных
+            var count = await db.Dormitories.CountAsync();
+            Debug.WriteLine($"Total dorms: {count}");
+
+            StatusMessage = $"Тест выполнен. Добавлено: {affected} записей";
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"ОШИБКА: {ex.ToString()}");
+            StatusMessage = ex.Message;
+        }
+    }
+
+    [RelayCommand]
     private async Task ShowStudentHistoryAsync()
     {
         if (SelectedStudent == null) return;
@@ -114,7 +154,7 @@ public partial class MainViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка при загрузке данных");
+            _logger.LogError($"Ошибка при загрузке данных: {ex}");
             StatusMessage = "Ошибка при загрузке данных";
         }
     }

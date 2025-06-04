@@ -59,8 +59,8 @@
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Vertical" Margin="5">
-                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="White"/>
-                                        <TextBlock Text="{Binding Address}" Foreground="LightGray" FontSize="12"/>
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="Black"/>
+                                        <TextBlock Text="{Binding Address}" Foreground="Black" FontSize="12"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
@@ -80,9 +80,9 @@
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Vertical" Margin="5">
-                                        <TextBlock Text="{Binding Number}" FontWeight="Bold" Foreground="White"/>
+                                        <TextBlock Text="{Binding Number}" FontWeight="Bold" Foreground="Black"/>
                                         <TextBlock Text="{Binding Students.Count, StringFormat={}Заселено: {0}/{1}}"
-                                                   Foreground="LightGray" FontSize="12"/>
+                                                   Foreground="Black" FontSize="12"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
@@ -128,6 +128,13 @@
                 <Button Content="Перевести всех на след. курс" 
                         Command="{Binding MoveAllToNextCourseCommand}" 
                         Margin="10,0,0,0" Padding="10,5"/>
+
+                <Button Content="Тест БД" 
+        Command="{Binding TestDbConnectionCommand}"
+        Margin="5"
+        Padding="10,5"
+        ToolTip="Проверить подключение к базе данных"/>
+
             </StackPanel>
 
             <!-- Основной контент -->

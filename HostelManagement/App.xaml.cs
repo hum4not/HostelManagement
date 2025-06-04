@@ -14,6 +14,9 @@ public partial class App : Application
     public static IServiceProvider ServiceProvider { get; private set; }
     private ILogger<App> _logger;
 
+
+
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -26,21 +29,25 @@ public partial class App : Application
 
         try
         {
-            // Применение миграций
             using var scope = ServiceProvider.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            await dbContext.Database.MigrateAsync();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // Запуск главного окна
-            var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-            mainWindow.Show();
+            // Простая проверка подключения
+            if (await db.Database.CanConnectAsync())
+            {
+                await db.Database.MigrateAsync(); // Применяем миграции
+                MessageBox.Show("Подключение к БД успешно!");
+            }
+            else
+            {
+                MessageBox.Show("Не удалось подключиться к БД");
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Application startup failed");
-            MessageBox.Show("Произошла критическая ошибка при запуске приложения. Подробности в логах.",
-                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Ошибка подключения: {ex.Message}");
             Shutdown();
+            return;
         }
     }
 

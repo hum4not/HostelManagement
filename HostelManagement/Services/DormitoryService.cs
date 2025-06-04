@@ -9,6 +9,7 @@ public class DormitoryService : IDormitoryService
     private readonly ApplicationDbContext _context;
     private readonly ILogger<DormitoryService> _logger;
 
+
     public DormitoryService(ApplicationDbContext context, ILogger<DormitoryService> logger)
     {
         _context = context;
@@ -26,7 +27,7 @@ public class DormitoryService : IDormitoryService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while getting dormitories");
+            _logger.LogError($"Error while getting dormitories {ex}");
             throw;
         }
     }
@@ -38,13 +39,29 @@ public class DormitoryService : IDormitoryService
     {
         try
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+
             await _context.Dormitories.AddAsync(dormitory);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Added new dormitory: {DormitoryName}", dormitory.Name);
+            await transaction.CommitAsync();
+
+            int affected = await _context.SaveChangesAsync();
+
+            if (affected == 0)
+                throw new Exception("Ни одна запись не была сохранена");
+
+            _logger.LogInformation($"Добавлено общежитие ID: {dormitory.Id}");
+        }
+        catch (DbUpdateException dbEx)
+        {
+            _logger.LogError(dbEx, "Ошибка сохранения в БД");
+            throw new Exception("Ошибка при сохранении в базу данных", dbEx);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while adding dormitory");
+            _logger.LogError(ex, "Неизвестная ошибка");
             throw;
         }
     }
