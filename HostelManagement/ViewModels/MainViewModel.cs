@@ -3,11 +3,14 @@ using CommunityToolkit.Mvvm.Input;
 using DormitoryManagement.Data;
 using DormitoryManagement.Models;
 using DormitoryManagement.Services;
+using DormitoryManagement.Views;
+using HostelManagement.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Windows;
 using System.Windows.Input;
 
 
@@ -33,6 +36,14 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private int _totalRooms;
     [ObservableProperty] private int _totalStudents;
     [ObservableProperty] private int _availableSpaces;
+
+    [ObservableProperty] private string _editDormitoryName;
+    [ObservableProperty] private string _editDormitoryAddress;
+    [ObservableProperty] private string _editRoomNumber;
+
+
+    [ObservableProperty] private string _studentSearchText = "";
+    [ObservableProperty] private ObservableCollection<Student> _searchStudentsResults = new();
 
     public MainViewModel(
         IDormitoryService dormitoryService,
@@ -81,7 +92,81 @@ public partial class MainViewModel : ObservableObject
     public ICommand SearchCommand { get; }
 
     [RelayCommand]
+    private async Task SaveDormitoryChanges()
+    {
+        if (SelectedDormitory == null) return;
+
+        try
+        {
+            SelectedDormitory.Name = EditDormitoryName;
+            SelectedDormitory.Address = EditDormitoryAddress;
+
+            await _dormitoryService.UpdateDormitoryAsync(SelectedDormitory);
+            StatusMessage = "Общежитие успешно обновлено";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Ошибка: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private async Task SaveRoomChanges()
+    {
+        if (SelectedRoom == null) return;
+
+        try
+        {
+            SelectedRoom.Number = EditRoomNumber;
+            await _roomService.UpdateRoomAsync(SelectedRoom);
+            StatusMessage = "Комната успешно обновлена";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Ошибка: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
     private void ToggleMenu() => IsMenuExpanded = !IsMenuExpanded;
+
+    [RelayCommand]
+    private async Task ShowAddStudentDialog()
+    {
+        var dialog = App.ServiceProvider.GetRequiredService<AddStudentDialog>();
+        dialog.Owner = Application.Current.MainWindow;
+
+        if (dialog.ShowDialog() == true)
+        {
+            var vm = (AddStudentDialogViewModel)dialog.DataContext;
+            try
+            {
+                await _studentService.AddStudentAsync(
+                    vm.FullName,
+                    vm.GroupName,
+                    vm.Course);
+
+                StatusMessage = $"Студент {vm.FullName} добавлен!";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Ошибка: {ex.Message}";
+            }
+        }
+    }
+
+    private async Task LoadStudentsAsync()
+    {
+        try
+        {
+            var students = await _studentService.GetStudentsAsync();
+            Students = new ObservableCollection<Student>(students);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Ошибка загрузки студентов: {ex.Message}";
+        }
+    }
 
     [RelayCommand]
     private async Task TestDbConnection()
@@ -91,11 +176,9 @@ public partial class MainViewModel : ObservableObject
             using var scope = App.ServiceProvider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // 1. Проверка подключения
             bool canConnect = await db.Database.CanConnectAsync();
             Debug.WriteLine($"Can connect: {canConnect}");
 
-            // 2. Прямое добавление тестовых данных
             var testDorm = new Dormitory
             {
                 Name = "Тест " + DateTime.Now.ToString("HH:mm:ss"),
@@ -106,7 +189,6 @@ public partial class MainViewModel : ObservableObject
             int affected = await db.SaveChangesAsync();
             Debug.WriteLine($"Affected rows: {affected}");
 
-            // 3. Проверка данных
             var count = await db.Dormitories.CountAsync();
             Debug.WriteLine($"Total dorms: {count}");
 
@@ -127,7 +209,6 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var history = await _studentService.GetStudentHistoryAsync(SelectedStudent.Id);
-            // Реализация отображения истории
             StatusMessage = $"Показана история для {SelectedStudent.FullName}";
         }
         catch (Exception ex)
@@ -135,6 +216,39 @@ public partial class MainViewModel : ObservableObject
             _logger.LogError(ex, "Ошибка при загрузке истории");
             StatusMessage = "Ошибка при загрузке истории";
         }
+    }
+
+    [RelayCommand]
+    private async Task SearchStudents()
+    {
+        if (string.IsNullOrWhiteSpace(StudentSearchText))
+        {
+            SearchStudentsResults.Clear();
+            return;
+        }
+
+        var results = await _studentService.SearchStudentsAsync(StudentSearchText);
+        SearchStudentsResults = new ObservableCollection<Student>(results);
+    }
+
+
+
+    [RelayCommand]
+    private async Task AddStudentToRoom()
+    {
+        if (SelectedStudent == null || SelectedRoom == null) return;
+
+        if (SelectedRoom.Students.Count >= SelectedRoom.Capacity)
+        {
+            StatusMessage = "Комната заполнена!";
+            return;
+        }
+
+        await _studentService.AccommodateStudentAsync(
+            SelectedStudent.Id,
+            SelectedRoom.Id);
+
+        StatusMessage = $"Студент {SelectedStudent.FullName} заселен в комнату {SelectedRoom.Number}";
     }
 
     private async Task LoadDataAsync()
@@ -156,6 +270,22 @@ public partial class MainViewModel : ObservableObject
         {
             _logger.LogError($"Ошибка при загрузке данных: {ex}");
             StatusMessage = "Ошибка при загрузке данных";
+        }
+    }
+    partial void OnSelectedDormitoryChanged(Dormitory? value)
+    {
+        if (value != null)
+        {
+            EditDormitoryName = value.Name;
+            EditDormitoryAddress = value.Address;
+        }
+    }
+
+    partial void OnSelectedRoomChanged(Room? value)
+    {
+        if (value != null)
+        {
+            EditRoomNumber = value.Number;
         }
     }
 
@@ -282,7 +412,7 @@ public partial class MainViewModel : ObservableObject
 
         try
         {
-            //await _roomService.UpdateRoomAsync(SelectedRoom);
+            await _roomService.UpdateRoomAsync(SelectedRoom);
             StatusMessage = "Комната успешно обновлена";
             UpdateStatistics();
         }
@@ -319,29 +449,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    private async Task AddStudentAsync()
-    {
-        try
-        {
-            var student = new Student
-            {
-                FullName = "Новый студент",
-                GroupName = "Группа",
-                Course = 1
-            };
-
-            await _studentService.AddStudentAsync(student);
-            Students.Add(student);
-            SelectedStudent = student;
-            StatusMessage = "Студент успешно добавлен";
-            UpdateStatistics();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка при добавлении студента");
-            StatusMessage = "Ошибка при добавлении студента";
-        }
-    }
+   
 
     private async Task EditStudentAsync()
     {
@@ -465,32 +573,6 @@ public partial class MainViewModel : ObservableObject
         {
             _logger.LogError(ex, "Ошибка при поиске");
             StatusMessage = "Ошибка при поиске";
-        }
-    }
-
-
-    partial void OnSelectedDormitoryChanged(Dormitory? value)
-    {
-        if (value != null)
-        {
-            LoadRoomsAsync(value.Id).ConfigureAwait(false);
-        }
-        else
-        {
-            Rooms.Clear();
-            Students.Clear();
-        }
-    }
-
-    partial void OnSelectedRoomChanged(Room? value)
-    {
-        if (value != null)
-        {
-            LoadStudentsAsync(value.Id).ConfigureAwait(false);
-        }
-        else
-        {
-            Students.Clear();
         }
     }
 }

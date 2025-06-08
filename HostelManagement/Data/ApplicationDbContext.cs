@@ -16,7 +16,6 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Конфигурации моделей (при необходимости)
         modelBuilder.Entity<Room>()
             .HasOne(r => r.Dormitory)
             .WithMany(d => d.Rooms)

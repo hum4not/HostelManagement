@@ -2,10 +2,10 @@ using DormitoryManagement.Data;
 using DormitoryManagement.Services;
 using DormitoryManagement.ViewModels;
 using DormitoryManagement.Views;
+using HostelManagement.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Windows;
 
 namespace DormitoryManagement;
@@ -13,9 +13,6 @@ public partial class App : Application
 {
     public static IServiceProvider ServiceProvider { get; private set; }
     private ILogger<App> _logger;
-
-
-
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -32,10 +29,9 @@ public partial class App : Application
             using var scope = ServiceProvider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // Простая проверка подключения
             if (await db.Database.CanConnectAsync())
             {
-                await db.Database.MigrateAsync(); // Применяем миграции
+                await db.Database.MigrateAsync();
                 MessageBox.Show("Подключение к БД успешно!");
             }
             else
@@ -53,29 +49,25 @@ public partial class App : Application
 
     private void ConfigureServices(IServiceCollection services)
     {
-        // Логирование
         services.AddLogging(configure =>
         {
-            //configure.AddConsole();
-           // configure.AddDebug();
         });
 
-        // База данных
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseNpgsql("Host=localhost;Database=dormitory_db;Username=postgres;Password=123");
-           // options.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
         });
 
-        // Регистрация сервисов
         services.AddScoped<IDormitoryService, DormitoryService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IStudentService, StudentService>();
 
-        // ViewModels
         services.AddTransient<MainViewModel>();
+        services.AddTransient<AddStudentDialogViewModel>();
 
-        // Окна
         services.AddTransient<MainWindow>();
+        services.AddTransient<AddStudentDialog>();
+
+
     }
 }

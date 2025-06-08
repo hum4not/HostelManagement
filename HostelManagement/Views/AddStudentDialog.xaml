@@ -1,0 +1,61 @@
+﻿<Window x:Class="DormitoryManagement.Views.AddStudentDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DormitoryManagement.Views"
+        mc:Ignorable="d"
+        Title="Добавить студента" 
+        Height="300" 
+        Width="300"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ФИО -->
+        <TextBlock Text="ФИО:" Grid.Row="0"/>
+        <TextBox x:Name="FullNameTextBox" 
+                 Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                 Grid.Row="1" 
+                 Margin="0,0,0,10"/>
+
+        <!-- Группа -->
+        <TextBlock Text="Группа:" Grid.Row="2"/>
+        <TextBox x:Name="GroupTextBox" 
+                 Text="{Binding GroupName, UpdateSourceTrigger=PropertyChanged}"
+                 Grid.Row="3" 
+                 Margin="0,0,0,10"/>
+
+        <!-- Курс -->
+        <TextBlock Text="Курс:" Grid.Row="4" Margin="0,0,0,125"/>
+        <ComboBox x:Name="CourseComboBox"
+                  SelectedIndex="{Binding Course}"
+                  Grid.Row="4"
+                  Margin="0,19,167,112">
+            <ComboBoxItem Content="1 курс"/>
+            <ComboBoxItem Content="2 курс"/>
+            <ComboBoxItem Content="3 курс"/>
+            <ComboBoxItem Content="4 курс"/>
+        </ComboBox>
+
+        <!-- Кнопки -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="6">
+            <Button Content="Отмена" 
+                    Click="CancelButton_Click" 
+                    Width="80" 
+                    Margin="0,0,10,0"/>
+            <Button Content="Добавить" 
+                    x:Name="AddButton" 
+                    Width="80"
+                    Command="{Binding AddCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

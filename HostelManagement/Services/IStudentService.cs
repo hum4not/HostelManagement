@@ -5,7 +5,7 @@ public interface IStudentService
 {
     Task<List<Student>> GetStudentsAsync(int? roomId = null);
     Task<Student?> GetStudentByIdAsync(int id);
-    Task AddStudentAsync(Student student);
+    Task AddStudentAsync(string fullName, string groupName, int course);
     Task UpdateStudentAsync(Student student);
     Task DeleteStudentAsync(int id);
     Task AccommodateStudentAsync(int studentId, int roomId);

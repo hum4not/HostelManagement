@@ -49,20 +49,7 @@ public class StudentService : IStudentService
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
-    public async Task AddStudentAsync(Student student)
-    {
-        try
-        {
-            await _context.Students.AddAsync(student);
-            await _context.SaveChangesAsync();
-            _logger.LogInformation("Added new student: {StudentName}", student.FullName);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error while adding student");
-            throw;
-        }
-    }
+ 
 
     public async Task UpdateStudentAsync(Student student)
     {
@@ -101,48 +88,6 @@ public class StudentService : IStudentService
     public async Task<bool> CanDeleteStudentAsync(int id)
     {
         return !await _context.AccommodationHistory.AnyAsync(a => a.StudentId == id);
-    }
-
-    public async Task AccommodateStudentAsync(int studentId, int roomId)
-    {
-        try
-        {
-            if (!await _roomService.HasFreeSpaceAsync(roomId))
-                throw new InvalidOperationException("Room is full");
-
-            var student = await _context.Students.FindAsync(studentId);
-            if (student == null)
-                throw new KeyNotFoundException("Student not found");
-
-            // Если студент уже заселен, сначала выселяем
-            if (student.RoomId.HasValue)
-            {
-                await EvictStudentAsync(studentId);
-            }
-
-            student.RoomId = roomId;
-
-            _context.AccommodationHistory.Add(new AccommodationHistory
-            {
-                StudentId = studentId,
-                RoomId = roomId,
-                CheckInDate = DateTime.Now
-            });
-
-            var room = await _context.Rooms.FindAsync(roomId);
-            if (room != null)
-            {
-                room.CurrentOccupancy++;
-            }
-
-            await _context.SaveChangesAsync();
-            _logger.LogInformation("Student {StudentId} accommodated in room {RoomId}", studentId, roomId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error while accommodating student");
-            throw;
-        }
     }
 
     public async Task EvictStudentAsync(int studentId)
@@ -220,24 +165,36 @@ public class StudentService : IStudentService
         }
     }
 
-    public async Task<List<Student>> SearchStudentsAsync(string searchText)
+    public async Task<List<Student>> SearchStudentsAsync(string searchTerm)
     {
-        try
+        return await _context.Students
+            .Where(s => s.FullName.Contains(searchTerm) ||
+                       s.Id.ToString() == searchTerm)
+            .ToListAsync();
+    }
+
+    public async Task AddStudentAsync(string fullName, string groupName, int course)
+    {
+        var student = new Student
         {
-            var searchTextLower = searchText.ToLower();
-            return await _context.Students
-                .Include(s => s.Room)
-                .Where(s =>
-                    s.FullName.ToLower().Contains(searchTextLower) ||
-                    s.GroupName.ToLower().Contains(searchTextLower) ||
-                    (s.Room != null && s.Room.Number.ToLower().Contains(searchTextLower)))
-                .ToListAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error while searching students");
-            throw;
-        }
+            FullName = fullName,
+            GroupName = groupName,
+            Course = course
+        };
+
+        await _context.Students.AddAsync(student);
+        await _context.SaveChangesAsync();
+    }
+    public async Task AccommodateStudentAsync(int studentId, int roomId)
+    {
+        var student = await _context.Students.FindAsync(studentId);
+        var room = await _context.Rooms.FindAsync(roomId);
+
+        if (student == null || room == null) return;
+        if (room.Students.Count >= room.Capacity) return;
+
+        student.RoomId = roomId;
+        await _context.SaveChangesAsync();
     }
 
     public async Task<List<AccommodationHistory>> GetStudentHistoryAsync(int studentId)

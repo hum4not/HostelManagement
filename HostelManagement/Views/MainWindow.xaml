@@ -1,5 +1,5 @@
 <Window x:Class="DormitoryManagement.Views.MainWindow"
-         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -9,50 +9,56 @@
         mc:Ignorable="d"
         Title="Учёт общежития" Height="700" Width="1100"
         WindowStartupLocation="CenterScreen">
-
+    
     <Window.Resources>
-        <converters:BoolToWidthConverter x:Key="BoolToWidthConverter"/>
-        <converters:BoolToMenuIconConverter x:Key="BoolToMenuIconConverter"/>
-
-        <Style TargetType="Button" x:Key="ActionButtonStyle">
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Padding" Value="8 4"/>
-            <Setter Property="MinWidth" Value="80"/>
-        </Style>
-
+        <!-- Конвертеры -->
+        <!--<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>-->
+        
+        
+        <!-- Стили -->
         <Style TargetType="TextBox" x:Key="EditTextBoxStyle">
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+        
+        <Style TargetType="Button" x:Key="SaveButtonStyle">
+            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="MinWidth" Value="100"/>
+        </Style>
+        
+        <Style TargetType="GroupBox" x:Key="EditGroupBoxStyle">
             <Setter Property="Margin" Value="5"/>
-            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
-
+    
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="250"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-
-        <!-- Боковое меню -->
-        <Border Grid.Column="0" Background="#FF2D2D30" 
-                Width="{Binding IsMenuExpanded, Converter={StaticResource BoolToWidthConverter}, ConverterParameter=250}">
+        
+        <!-- Боковая панель -->
+        <Border Grid.Column="0" Background="#FF2D2D30">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-
-                <!-- Кнопка свернуть/развернуть меню -->
-                <Button Grid.Row="0" Content="{Binding IsMenuExpanded, Converter={StaticResource BoolToMenuIconConverter}}" 
-                        Command="{Binding ToggleMenuCommand}" 
-                        Style="{StaticResource MenuButtonStyle}"
-                        HorizontalAlignment="Right"/>
-
-                <!-- Основное содержимое меню -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="10">
-                        <!-- Общежития -->
-                        <TextBlock Text="Общежития" Style="{StaticResource MenuHeaderStyle}"/>
+                
+                <!-- Общежития -->
+                <GroupBox Grid.Row="0" Header="Общежития" Margin="5">
+                    <StackPanel>
                         <ListView ItemsSource="{Binding Dormitories}" 
                                   SelectedItem="{Binding SelectedDormitory}"
                                   Height="150">
@@ -65,15 +71,16 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
-
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
-                            <Button Content="Добавить" Command="{Binding AddDormitoryCommand}" Style="{StaticResource SmallButtonStyle}"/>
-                            <Button Content="Изменить" Command="{Binding EditDormitoryCommand}" Style="{StaticResource SmallButtonStyle}"/>
-                            <Button Content="Удалить" Command="{Binding DeleteDormitoryCommand}" Style="{StaticResource SmallButtonStyle}"/>
+                            <Button Content="Добавить" Command="{Binding AddDormitoryCommand}" Width="80"/>
+                            <Button Content="Удалить" Command="{Binding DeleteDormitoryCommand}" Width="80" Margin="5,0,0,0"/>
                         </StackPanel>
-
-                        <!-- Комнаты -->
-                        <TextBlock Text="Комнаты" Style="{StaticResource MenuHeaderStyle}" Margin="0,15,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+                
+                <!-- Комнаты -->
+                <GroupBox Grid.Row="1" Header="Комнаты" Margin="5">
+                    <StackPanel>
                         <ListView ItemsSource="{Binding Rooms}" 
                                   SelectedItem="{Binding SelectedRoom}"
                                   Height="150">
@@ -81,110 +88,142 @@
                                 <DataTemplate>
                                     <StackPanel Orientation="Vertical" Margin="5">
                                         <TextBlock Text="{Binding Number}" FontWeight="Bold" Foreground="Black"/>
-                                        <TextBlock Text="{Binding Students.Count, StringFormat={}Заселено: {0}/{1}}"
+                                        <TextBlock Text="{Binding Students.Count, StringFormat='Заселено: {0}/{1}'}" 
                                                    Foreground="Black" FontSize="12"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
-
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
-                            <Button Content="Добавить" Command="{Binding AddRoomCommand}" Style="{StaticResource SmallButtonStyle}"/>
-                            <Button Content="Изменить" Command="{Binding EditRoomCommand}" Style="{StaticResource SmallButtonStyle}"/>
-                            <Button Content="Удалить" Command="{Binding DeleteRoomCommand}" Style="{StaticResource SmallButtonStyle}"/>
+                            <Button Content="Добавить" Command="{Binding AddRoomCommand}" Width="80"/>
+                            <Button Content="Удалить" Command="{Binding DeleteRoomCommand}" Width="80" Margin="5,0,0,0"/>
                         </StackPanel>
                     </StackPanel>
-                </ScrollViewer>
-
+                </GroupBox>
+                
                 <!-- Статистика -->
                 <Border Grid.Row="2" Background="#FF252526" Padding="10">
                     <StackPanel>
-                        <TextBlock Text="Статистика" Style="{StaticResource MenuHeaderStyle}"/>
-                        <TextBlock Text="{Binding TotalRooms, StringFormat={}Комнат: {0}}" Foreground="White" Margin="5"/>
-                        <TextBlock Text="{Binding TotalStudents, StringFormat={}Студентов: {0}}" Foreground="White" Margin="5"/>
-                        <TextBlock Text="{Binding AvailableSpaces, StringFormat={}Свободных мест: {0}}" Foreground="White" Margin="5"/>
+                        <TextBlock Text="Статистика" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="{Binding TotalRooms, StringFormat='Комнат: {0}'}" Foreground="White" Margin="5,2"/>
+                        <TextBlock Text="{Binding TotalStudents, StringFormat='Студентов: {0}'}" Foreground="White" Margin="5,2"/>
+                        <TextBlock Text="{Binding AvailableSpaces, StringFormat='Свободных мест: {0}'}" Foreground="White" Margin="5,2"/>
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
-
-        <!-- Основное содержимое -->
+        
+        <!-- Основная область -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
-            <!-- Заголовок и поиск -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" HorizontalAlignment="Stretch">
+            
+            <!-- Панель инструментов -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
                 <TextBlock Text="{Binding SelectedDormitory.Name, StringFormat='Общежитие: {0}'}" 
-                           Style="{StaticResource HeaderStyle}" VerticalAlignment="Center"/>
-
+                           VerticalAlignment="Center" FontSize="16" FontWeight="Bold" MinWidth="200"/>
+                
+                <Button Content="Тест БД" Command="{Binding TestDbConnectionCommand}" Margin="10,0,0,0" Padding="10,5"/>
+                
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
-                         Width="200" Margin="10,0" Padding="5"/>
-                <Button Content="Найти" Command="{Binding SearchCommand}" Margin="0,0,10,0" Padding="10,5"/>
-
+                         Width="200" Margin="10,0" Padding="5"
+                         ToolTip="Поиск студентов"/>
+                <Button Content="Поиск" Command="{Binding SearchCommand}" Margin="0,0,10,0" Padding="10,5"/>
+                
                 <Button Content="Перевести всех на след. курс" 
                         Command="{Binding MoveAllToNextCourseCommand}" 
                         Margin="10,0,0,0" Padding="10,5"/>
-
-                <Button Content="Тест БД" 
-        Command="{Binding TestDbConnectionCommand}"
-        Margin="5"
-        Padding="10,5"
-        ToolTip="Проверить подключение к базе данных"/>
-
             </StackPanel>
-
+            
             <!-- Основной контент -->
             <Grid Grid.Row="1" Margin="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
-
-                <!-- Информация о комнате -->
-                <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="0,0,1,0" Padding="0,0,10,0">
-                    <StackPanel>
-                        
-                        <TextBlock Text="{Binding SelectedRoom.Number, StringFormat='Комната: {0}'}" 
-                                   Style="{StaticResource SubHeaderStyle}"/>
-
-                        <Grid Margin="0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Text="Вместимость:" Grid.Row="0" Grid.Column="0" Margin="0,0,10,5"/>
-                            <TextBlock Text="{Binding SelectedRoom.Capacity}" Grid.Row="0" Grid.Column="1"/>
-
-                            <TextBlock Text="Заселено:" Grid.Row="1" Grid.Column="0" Margin="0,0,10,5"/>
-                            <TextBlock Text="{Binding SelectedRoom.Students.Count}" Grid.Row="1" Grid.Column="1"/>
-                        </Grid>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20">
-                            <Button Content="Заселить" Command="{Binding AccommodateStudentCommand}" 
-                                    Style="{StaticResource ActionButtonStyle}"/>
-                            <Button Content="Выселить" Command="{Binding EvictStudentCommand}" 
-                                    Style="{StaticResource ActionButtonStyle}"/>
-                            <Button Content="Перевести" Command="{Binding TransferStudentCommand}" 
-                                    Style="{StaticResource ActionButtonStyle}"/>
+                
+                <!-- Панель редактирования -->
+                <StackPanel Grid.Column="0">
+                    <!-- Редактирование общежития -->
+                    <GroupBox Header="Редактировать общежитие" 
+                              Style="{StaticResource EditGroupBoxStyle}"
+                              Visibility="{Binding SelectedDormitory}">
+                        <StackPanel>
+                            <TextBlock Text="Название:" Margin="0,0,0,2"/>
+                            <TextBox Text="{Binding EditDormitoryName, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource EditTextBoxStyle}"/>
                             
+                            <TextBlock Text="Адрес:" Margin="0,5,0,2"/>
+                            <TextBox Text="{Binding EditDormitoryAddress, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource EditTextBoxStyle}"/>
+                            
+                            <Button Content="Сохранить" 
+                                    Command="{Binding SaveDormitoryChangesCommand}"
+                                    Style="{StaticResource SaveButtonStyle}"/>
                         </StackPanel>
-                        <Button Content="История" 
-        Command="{Binding ShowStudentHistoryCommand}" 
-        Margin="5" Padding="8 4"/>
-                    </StackPanel>
-                </Border>
+                    </GroupBox>
+                    
+                    <!-- Редактирование комнаты -->
+                    <GroupBox Header="Редактировать комнату" 
+                              Style="{StaticResource EditGroupBoxStyle}"
+                              Margin="0,10,0,0"
+                              Visibility="{Binding SelectedRoom}">
+                        <StackPanel>
+                            <TextBlock Text="Номер комнаты:" Margin="0,0,0,2"/>
+                            <TextBox Text="{Binding EditRoomNumber, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource EditTextBoxStyle}"/>
+                            
+                            <Button Content="Сохранить" 
+                                    Command="{Binding SaveRoomChangesCommand}"
+                                    Style="{StaticResource SaveButtonStyle}"/>
+                        </StackPanel>
+                        
+                        
+                        
+                    </GroupBox>
 
+                    <GroupBox Header="Работа со студентами" Margin="5" Grid.Row="1">
+                        <StackPanel>
+                            <!-- Поиск студентов -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBox Text="{Binding StudentSearchText, UpdateSourceTrigger=PropertyChanged}" 
+                         Width="200" Margin="0,0,5,0"/>
+                                <Button Content="Найти" Command="{Binding SearchStudentsCommand}"/>
+                            </StackPanel>
+
+                            <!-- Результаты поиска -->
+                            <DataGrid ItemsSource="{Binding SearchStudentsResults}" 
+                      SelectedItem="{Binding SelectedStudent}"
+                      AutoGenerateColumns="False"
+                      Height="150">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                                    <DataGridTextColumn Header="ФИО" Binding="{Binding FullName}" Width="*"/>
+                                    <DataGridTextColumn Header="Группа" Binding="{Binding GroupName}" Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- Управление студентами -->
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <Button Content="Добавить нового" 
+                        Command="{Binding ShowAddStudentDialogCommand}"
+                        Margin="0,0,5,0"/>
+
+                                <Button Content="Заселить в комнату" 
+                        Command="{Binding AddStudentToRoomCommand}"
+                        IsEnabled="{Binding SelectedStudent}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+                
                 <!-- Список студентов -->
-                <DataGrid Grid.Column="1" ItemsSource="{Binding Students}" 
+                <DataGrid Grid.Column="1" 
+                          ItemsSource="{Binding Students}" 
                           SelectedItem="{Binding SelectedStudent}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
@@ -195,7 +234,7 @@
                         <DataGridTextColumn Header="Курс" Binding="{Binding Course}" Width="*"/>
                         <DataGridTextColumn Header="Комната" Binding="{Binding Room.Number}" Width="*"/>
                     </DataGrid.Columns>
-
+                    
                     <DataGrid.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Добавить студента" Command="{Binding AddStudentCommand}"/>
@@ -209,7 +248,7 @@
                     </DataGrid.ContextMenu>
                 </DataGrid>
             </Grid>
-
+            
             <!-- Статус бар -->
             <StatusBar Grid.Row="2">
                 <StatusBarItem>

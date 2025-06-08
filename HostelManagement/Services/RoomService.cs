@@ -30,6 +30,11 @@ public class RoomService : IRoomService
             await _context.SaveChangesAsync();
         }
     }
+    public async Task UpdateRoomAsync(Room room)
+    {
+        _context.Rooms.Update(room);
+        await _context.SaveChangesAsync();
+    }
 
     public async Task<bool> CanDeleteRoomAsync(int id) => 
         !await _context.Students.AnyAsync(s => s.RoomId == id);
@@ -71,7 +76,6 @@ public class RoomService : IRoomService
             CheckInDate = DateTime.Now
         });
 
-        // Обновляем комнаты
         if (oldRoomId.HasValue)
         {
             var oldRoom = await _context.Rooms.FindAsync(oldRoomId);

@@ -5,8 +5,10 @@
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
 
-        <converters:BoolToWidthConverter x:Key="BoolToWidthConverter"/>
+        <!--<converters:BoolToWidthConverter x:Key="BoolToWidthConverter"/>
         <converters:BoolToMenuIconConverter x:Key="BoolToMenuIconConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>-->
         
         <Style x:Key="MenuButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
