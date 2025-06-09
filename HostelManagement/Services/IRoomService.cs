@@ -11,4 +11,5 @@ public interface IRoomService
     Task<int> GetFreeSpacesCountAsync(int roomId);
     Task TransferStudentAsync(int studentId, int newRoomId);
     Task UpdateRoomAsync(Room room);
+    Task<List<Student>> GetStudentsInRoomAsync(int roomId);
 }

@@ -134,7 +134,7 @@
                 <Button Content="Поиск" Command="{Binding SearchCommand}" Margin="0,0,10,0" Padding="10,5"/>
                 
                 <Button Content="Перевести всех на след. курс" 
-                        Command="{Binding MoveAllToNextCourseCommand}" 
+                        Command="{Binding PromoteAllStudentsCommand}" 
                         Margin="10,0,0,0" Padding="10,5"/>
             </StackPanel>
             
@@ -213,7 +213,7 @@
                         Margin="0,0,5,0"/>
 
                                 <Button Content="Заселить в комнату" 
-                        Command="{Binding AddStudentToRoomCommand}"
+                        Command="{Binding AccommodateStudentCommand}"
                         IsEnabled="{Binding SelectedStudent}"/>
                             </StackPanel>
                         </StackPanel>
@@ -223,7 +223,8 @@
                 
                 <!-- Список студентов -->
                 <DataGrid Grid.Column="1" 
-                          ItemsSource="{Binding Students}" 
+                          ItemsSource="{Binding 
+                    CurrentRoomStudents}" 
                           SelectedItem="{Binding SelectedStudent}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"

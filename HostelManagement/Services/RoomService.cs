@@ -51,6 +51,14 @@ public class RoomService : IRoomService
         return room?.Capacity - room?.CurrentOccupancy ?? 0;
     }
 
+    public async Task<List<Student>> GetStudentsInRoomAsync(int roomId)
+    {
+        return await _context.Students
+            .Where(s => s.RoomId == roomId)
+            .Include(s => s.Room)
+            .ToListAsync();
+    }
+
     public async Task TransferStudentAsync(int studentId, int newRoomId)
     {
         var student = await _context.Students.FindAsync(studentId);

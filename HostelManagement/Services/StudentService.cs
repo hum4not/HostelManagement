@@ -42,6 +42,11 @@ public class StudentService : IStudentService
         }
     }
 
+    public async Task<IEnumerable<Student>> GetAllStudentsAsync()
+    {
+        return await _context.Students.ToListAsync();
+    }
+
     public async Task<Student?> GetStudentByIdAsync(int id)
     {
         return await _context.Students
@@ -185,16 +190,41 @@ public class StudentService : IStudentService
         await _context.Students.AddAsync(student);
         await _context.SaveChangesAsync();
     }
-    public async Task AccommodateStudentAsync(int studentId, int roomId)
+
+    public async Task PromoteAllStudents()
     {
-        var student = await _context.Students.FindAsync(studentId);
-        var room = await _context.Rooms.FindAsync(roomId);
+        var students = _context.Students.ToList();
 
-        if (student == null || room == null) return;
-        if (room.Students.Count >= room.Capacity) return;
+        foreach (var student in students)
+        {
+            student.Course++;
 
-        student.RoomId = roomId;
-        await _context.SaveChangesAsync();
+            if (student.Course > 5)
+            {
+                _context.Students.Remove(student);
+            }
+        }
+
+        _context.SaveChanges();
+    }
+
+    public List<Student> GetStudentsByRoom(int roomId)
+    {
+        return _context.Students
+            .Where(s => s.RoomId == roomId)
+            .ToList();
+    }
+
+    public async Task AccommodateStudent(int studentId, int roomId)
+    {
+        var student = _context.Students.Find(studentId);
+        var room = _context.Rooms.Find(roomId);
+    
+        if (student != null && room != null)
+        {
+            student.RoomId = roomId;
+            _context.SaveChanges();
+        }
     }
 
     public async Task<List<AccommodationHistory>> GetStudentHistoryAsync(int studentId)

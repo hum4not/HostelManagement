@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DormitoryManagement.Views"
+        xmlns:local="clr-namespace:DormitoryManagement.Views" 
+        xmlns:viewmodels="clr-namespace:DormitoryManagement.ViewModels"
         mc:Ignorable="d"
         Title="Добавить студента" 
         Height="300" 
@@ -12,6 +13,7 @@
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -35,11 +37,11 @@
                  Margin="0,0,0,10"/>
 
         <!-- Курс -->
-        <TextBlock Text="Курс:" Grid.Row="4" Margin="0,0,0,125"/>
+        <TextBlock Text="Курс:" Grid.Row="4"/>
         <ComboBox x:Name="CourseComboBox"
                   SelectedIndex="{Binding Course}"
-                  Grid.Row="4"
-                  Margin="0,19,167,112">
+                  Grid.Row="5"
+                  Margin="0,0,0,10">
             <ComboBoxItem Content="1 курс"/>
             <ComboBoxItem Content="2 курс"/>
             <ComboBoxItem Content="3 курс"/>
@@ -48,12 +50,11 @@
 
         <!-- Кнопки -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="6">
-            <Button Content="Отмена" 
-                    Click="CancelButton_Click" 
+            <Button Content="Отмена"
                     Width="80" 
-                    Margin="0,0,10,0"/>
+                    Margin="0,0,10,0"
+                    Click="CancelButton_Click"/>
             <Button Content="Добавить" 
-                    x:Name="AddButton" 
                     Width="80"
                     Command="{Binding AddCommand}"/>
         </StackPanel>
