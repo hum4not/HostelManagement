@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DormitoryManagement.Data;
 using DormitoryManagement.Services;
 using DormitoryManagement.ViewModels;
+using DormitoryManagement.Views;
 using System.ComponentModel.DataAnnotations;
 using System.Windows;
 
@@ -21,7 +23,16 @@ namespace HostelManagement.ViewModels
         [ObservableProperty]
         private int _course = 1;
 
+        [RelayCommand]
+        private void Add()
+        {
 
+            if (Application.Current.Windows.OfType<AddStudentDialog>().FirstOrDefault() is AddStudentDialog dialog)
+            {
+                dialog.DialogResult = true;
+            }
+            
+        }
     }
 
 }

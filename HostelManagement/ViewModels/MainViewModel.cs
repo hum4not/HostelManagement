@@ -64,6 +64,7 @@ public partial class MainViewModel : ObservableObject
         AddRoomCommand = new AsyncRelayCommand(AddRoomAsync);
         EditRoomCommand = new AsyncRelayCommand(EditRoomAsync);
         DeleteRoomCommand = new AsyncRelayCommand(DeleteRoomAsync);
+
         EditStudentCommand = new AsyncRelayCommand(EditStudentAsync);
         DeleteStudentCommand = new AsyncRelayCommand(DeleteStudentAsync);
         AccommodateStudentCommand = new AsyncRelayCommand(AccommodateStudent);
@@ -83,7 +84,7 @@ public partial class MainViewModel : ObservableObject
     public ICommand AddRoomCommand { get; }
     public ICommand EditRoomCommand { get; }
     public ICommand DeleteRoomCommand { get; }
-    public ICommand AddStudentCommand { get; }
+    //public ICommand AddStudentCommand { get; }
     public ICommand EditStudentCommand { get; }
     public ICommand DeleteStudentCommand { get; }
     public ICommand AccommodateStudentCommand { get; }
@@ -202,28 +203,34 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task ShowAddStudentDialog()
     {
-        var dialog = App.ServiceProvider.GetRequiredService<AddStudentDialog>();
-        dialog.Owner = Application.Current.MainWindow;
+
+
+
+        MessageBox.Show("Диалог открывается"); // Проверка 1
+
+        var dialogVm = new AddStudentDialogViewModel();
+        var dialog = new AddStudentDialog
+        {
+            DataContext = dialogVm
+        };
 
         if (dialog.ShowDialog() == true)
         {
-            var vm = (AddStudentDialogViewModel)dialog.DataContext;
+
+
+            MessageBox.Show($"Данные: {dialogVm.FullName}, {dialogVm.GroupName}, {dialogVm.Course}"); // Проверка 2
+
             try
             {
-                await _studentService.AddStudentAsync(
-                    vm.FullName,
-                    vm.GroupName,
-                    vm.Course);
-
-                StatusMessage = $"Студент {vm.FullName} добавлен!";
+                await _studentService.AddStudentAsync(dialogVm.FullName, dialogVm.GroupName, dialogVm.Course);
+                MessageBox.Show("Студент добавлен в БД"); // Проверка 3
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Ошибка: {ex.Message}";
+                Console.WriteLine($"Ошибка БД: {ex.Message}");
             }
         }
     }
-
 
 
     [RelayCommand]
@@ -249,6 +256,32 @@ public partial class MainViewModel : ObservableObject
     
     }
 
+    [RelayCommand]
+    private async Task AddStudent()
+    {
+        Debug.WriteLine("AddStudent работает!");
+        try
+        {
+            var dialog = new AddStudentDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                if (dialog.DataContext is AddStudentDialogViewModel vm)
+                {
+                    await _studentService.AddStudentAsync(
+                        vm.FullName,
+                        vm.GroupName,
+                        vm.Course);
+
+                    await LoadStudentsAsync(_selectedRoom.Id);
+                    StatusMessage = "Студент успешно добавлен!";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Ошибка: {ex.Message}";
+        }
+    }
 
 
     [RelayCommand]
