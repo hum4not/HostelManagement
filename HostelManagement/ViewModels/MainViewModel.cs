@@ -203,11 +203,6 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task ShowAddStudentDialog()
     {
-
-
-
-        MessageBox.Show("Диалог открывается"); // Проверка 1
-
         var dialogVm = new AddStudentDialogViewModel();
         var dialog = new AddStudentDialog
         {
@@ -216,14 +211,9 @@ public partial class MainViewModel : ObservableObject
 
         if (dialog.ShowDialog() == true)
         {
-
-
-            MessageBox.Show($"Данные: {dialogVm.FullName}, {dialogVm.GroupName}, {dialogVm.Course}"); // Проверка 2
-
             try
             {
                 await _studentService.AddStudentAsync(dialogVm.FullName, dialogVm.GroupName, dialogVm.Course);
-                MessageBox.Show("Студент добавлен в БД"); // Проверка 3
             }
             catch (Exception ex)
             {
@@ -236,23 +226,6 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task TestDbConnection()
     {
-
-        //var owner = this.Owner;
-        //var dialogResult = this.DialogResult;
-        //var dataContext = this.DataContext;
-
-        //// Закрываем текущее окно
-        //this.Close();
-
-        //// Создаем новое окно
-        //var newWindow = new AddStudentDialog()
-        //{
-        //    Owner = owner,
-        //    DataContext = dataContext
-        //};
-
-        //// Показываем новое окно
-        //newWindow.ShowDialog();
     
     }
 
