@@ -2,7 +2,9 @@ using DormitoryManagement.Data;
 using DormitoryManagement.Services;
 using DormitoryManagement.ViewModels;
 using DormitoryManagement.Views;
+using HostelManagement.Services;
 using HostelManagement.ViewModels;
+using HostelManagement.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -61,12 +63,16 @@ public partial class App : Application
         services.AddScoped<IDormitoryService, DormitoryService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IStudentService, StudentService>();
-
-        services.AddTransient<MainViewModel>();
-        services.AddTransient<AddStudentDialogViewModel>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddTransient<MainWindow>();
+        services.AddTransient<MainViewModel>();
+
+        services.AddTransient<AuthWindow>();
+        services.AddTransient<AuthViewModel>();
+
         services.AddTransient<AddStudentDialog>();
+        services.AddTransient<AddStudentDialogViewModel>();
 
 
     }

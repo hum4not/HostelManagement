@@ -1,12 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DormitoryManagement.Data;
 using DormitoryManagement.Models;
 using DormitoryManagement.Services;
 using DormitoryManagement.Views;
 using HostelManagement.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
